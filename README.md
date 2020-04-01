@@ -16,5 +16,18 @@ You will also see any lint errors in the console.
  
 ### `Components`  
       It Containts resuable components -
-#### `Header` 
-      For Navigation and Active Screen Indication
+####    `Header` 
+         For Navigation and Active Screen Indication
+####    `Meeting-Item`
+         For displaying Each Meeting in Details
+####     `Card` 
+          For Card Container View
+      
+### `Screens`  
+     It Contains Seperate Screens
+####    `Home`
+         For Displaying All meetings For the selected Date
+####     `Meeting`
+         For Adding a Meeting if Slot is Available
+
+
