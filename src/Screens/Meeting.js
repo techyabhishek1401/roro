@@ -36,6 +36,7 @@ class Meeting extends Component {
                 result.data.map(meeting => {
                     slots.push({ st_Time: meeting.start_time, end_time: meeting.end_time });  //creating slots with meeting start and end Time
                 })
+                localStorage.setItem('meetings', JSON.stringify(result.data))
                 this.setState({ meetings: result.data, slots })  //setting meetings array and slots
             }).catch(err => {
                 throw err;
@@ -55,7 +56,7 @@ class Meeting extends Component {
         //     else
         //        return
         // }
-        if (description !== "" && start_time !== "" && end_time !== "")
+        if (description !== "" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
             disabled = false
         this.setState({ [e.target.name]: e.target.value, showMsg: false, showErr: false, disabled }) //setting state for input change
     }
@@ -75,33 +76,101 @@ class Meeting extends Component {
         this.setState({ [type]: "time", disabledEnd })
         console.log("type:", type)
     }
+
+
     handleSave = () => {
+        const { start_time, end_time, slots, description, date } = this.state;
+        var regex = new RegExp(':', 'g');
+        var startTime = start_time;
+        var endTime = end_time;
+        var isTime = true;
+        // let slots = [{ st_Time: "10:00", end_time: "11:00" }
+        //     , { st_Time: "14:00", end_time: "14:30" }
+        //     , { st_Time: "9:30", end_time: "11:00" }
+        //     , { st_Time: "15:30", end_time: "16:00" }
+        // ]
+
+        for (let i = 0; i < slots.length; i++) {
+            // let arr_start = parseInt(slots[i].st_Time.replace(regex, ''), 10);
+            // let arr_end = parseInt(slots[i].end_time.replace(regex, ''), 10);
+            // let my_start = parseInt(startTime.replace(regex, ''), 10);
+            // let my_end = parseInt(endTime.replace(regex, ''), 10);
+            let arr_start = Date.parse(`2011-10-09T${slots[i].st_Time}`);
+            let arr_end = Date.parse(`2011-10-09T${slots[i].end_time}`);
+            let my_start = Date.parse(`2011-10-09T${startTime}`)
+            let my_end = Date.parse(`2011-10-09T${endTime}`)
+            //   (start_time >= start && start_time <= end && end_time >= start && end_time <= end)
+            //   if (my_start >= arr_start && my_start <= arr_end && my_end >= arr_start && my_end <= arr_end) {
+            if (
+                //(arr_start >= my_start && arr_start <= my_end && arr_end >= my_start && arr_end <= my_end)
+                // || (my_start >= arr_start && my_start <= arr_end && my_end >= arr_start && my_end <= arr_end)
+                //||
+                ((my_start <= arr_start && my_end >= arr_start) || (my_start <= arr_end && my_end >= arr_end) || (my_start >= arr_start && my_end <= arr_end))
+                //|| ((arr_start <= my_start && arr_start >= my_end) || (arr_end <= my_start && arr_end >= my_end) || (arr_start >= my_start && arr_end <= my_end))
+            )
+            // if ((my_start <= arr_start && my_end >= arr_start) || (my_start <= arr_end && my_end >= arr_end) || (my_start >= arr_start && my_end <= arr_end)) {
+
+            {
+                isTime = false;
+                console.log("i:", i);
+                break;
+            }
+
+        }
+        if (isTime) {
+            this.setState({ msg: "SLOT AVAILABLE", showMsg: true, color: "success" });
+            const previosMeetings = JSON.parse(localStorage.getItem('meetings'));
+            const meeting = {
+                start_time,
+                end_time,
+                description
+            }
+            console.log("meetin previos-->", previosMeetings);
+            previosMeetings.push(meeting)
+            console.log("meeting new-->", previosMeetings);
+
+            localStorage.setItem("meetings", JSON.stringify(previosMeetings))
+        }
+        else
+            this.setState({ msg: "SLOT Not AVAILABLE", showMsg: true, color: "danger" })
+
+        console.log("isTime:", isTime)
+    }
+    handleSavew = () => {
 
         const { slots, start_time, end_time, description, date } = this.state;
         var regex = new RegExp(':', 'g');
         var startTime = start_time;
         var endTime = end_time;
         var isTime = true;
+        debugger;
+        // for (let i = 0; i < slots.length; i++) {
+        //     console.log("startTime:", parseInt(startTime.replace(regex, ''), 10));
+        //     console.log("endTime:", parseInt(endTime.replace(regex, ''), 10));
+        //     console.log("st_Time:", parseInt(slots[i].st_Time.replace(regex, ''), 10));
+        //     console.log("end_time:", parseInt(slots[i].end_time.replace(regex, ''), 10));
+        //     if (parseInt(startTime.replace(regex, ''), 10) > parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(startTime.replace(regex, ''), 10) < parseInt(slots[i].end_time.replace(regex, ''), 10) ||
+        //         parseInt(endTime.replace(regex, ''), 10) > parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(endTime.replace(regex, ''), 10) < parseInt(slots[i].end_time.replace(regex, ''), 10)
 
-        for (let i = 0; i < slots.length; i++) {
-            if (parseInt(startTime.replace(regex, ''), 10) >= parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(startTime.replace(regex, ''), 10) <= parseInt(slots[i].end_time.replace(regex, ''), 10) ||
-                parseInt(endTime.replace(regex, ''), 10) >= parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(endTime.replace(regex, ''), 10) <= parseInt(slots[i].end_time.replace(regex, ''), 10)
+        //     ) {
+        //         isTime = false;
+        //         break;
+        //     }
+        // }
 
-            ) {
-                isTime = false;
-                break;
-            }
-
-
-        }
         if (isTime) {
-            this.setState({ msg: "SLOT AVAILABLE", showMsg: true, color: "success" })
+            this.setState({ msg: "SLOT AVAILABLE", showMsg: true, color: "success" });
+            const previosMeetings = JSON.parse(localStorage.getItem('meetings'));
             const meeting = {
                 start_time,
                 end_time,
                 description
             }
-            console.log("meeting-->", meeting)
+            console.log("meetin previos-->", previosMeetings);
+            previosMeetings.push(meeting)
+            console.log("meeting new-->", previosMeetings);
+
+            localStorage.setItem("meetings", JSON.stringify(previosMeetings))
         }
         else
             this.setState({ msg: "SLOT Not AVAILABLE", showMsg: true, color: "danger" })
@@ -121,7 +190,7 @@ class Meeting extends Component {
 
     render() {
         const { date, disabled, disabledEnd, startType, endType, msg, showMsg, start_time, end_time, description, today, color, showErr, errMsg } = this.state;
-        console.log("slots:", this.state.slots);
+        // console.log("slots:", this.state.slots);
         return (
             <div>
                 <Header items={["Home", "Add Meeting"]} />
@@ -180,7 +249,7 @@ class Meeting extends Component {
 
 
                 </Card>
-                <div className="text-center mt-5" >
+                <div className="text-center" >
                     <button className="btn btn-primary px-5 py-1" disabled={disabled} onClick={this.handleSave}>Save</button>
                 </div>
 
