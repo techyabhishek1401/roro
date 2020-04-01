@@ -86,14 +86,11 @@ class Home extends Component {
             <>
                 <Header items={["Home", "Meetings"]} />
                 <div className="container text-center " >
+                    <div className="date-header  text-center text-info mb-5">
 
-                    <div className="date-header  text-center text-info">
-
-                        <MDBIcon icon="chevron-left" className="navigation-icon" onClick={this.handleDateChange.bind(this, "prev")} />
-                        {/* <span className="date">{date.toLocaleDateString("en-US", options)}</span> */}
-
-                        {date.toString().split(" ")[2]} {date.toString().split(" ")[1]} {date.toString().split(" ")[3]}
-                        <MDBIcon icon="chevron-right" className="navigation-icon" onClick={this.handleDateChange.bind(this, "next")} />
+                        <MDBIcon icon="chevron-left" className="navigation-icon fa-2x" onClick={this.handleDateChange.bind(this, "prev")} />
+                        <span className="date">{date.toString().split(" ")[2]} {date.toString().split(" ")[1]} {date.toString().split(" ")[3]}</span>
+                        <MDBIcon icon="chevron-right" className="navigation-icon fa-2x" onClick={this.handleDateChange.bind(this, "next")} />
                     </div>
                     <div>
                         {
@@ -103,7 +100,7 @@ class Home extends Component {
                         }
                     </div>
 
-                    <button onClick={this.handleAdd} className="px-5 py-1 btn btn-primary" disabled={disabled}>Add Meeting</button>
+                    <button onClick={this.handleAdd} className="px-5 mt-5 py-1 btn btn-primary add-btn" disabled={disabled}>Add Meeting</button>
                 </div>
             </>
 

@@ -9,7 +9,7 @@ import history from './history';
 function App() {
   return (
 
-    <div style={{ background: "#F5F7FB", width: '100vw', minHeight: "100vh" }}>
+    <div style={{ background: "rgb(237, 240, 248)", width: '100vw', minHeight: "100vh" }}>
       <Switch>
         <Route path="/" exact><Home /></Route>
         <Route path="/meeting" ><Meeting /></Route>
