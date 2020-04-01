@@ -27,7 +27,7 @@ class Meeting extends Component {
                 console.log("sss:", result.data)
                 let slots = [], m = [], n = [];
                 result.data.map(meeting => {
-                    slots.push(`${meeting.start_time}-${meeting.end_time}`);  //creating slots with meeting start and end Time
+                    slots.push({ st_Time: meeting.start_time, end_time: meeting.end_time });  //creating slots with meeting start and end Time
                 })
                 this.setState({ meetings: result.data, slots })  //setting meetings array and slots
             }).catch(err => {
@@ -43,50 +43,31 @@ class Meeting extends Component {
         this.setState({ start_time: "", end_time: "", description: "" })
     }
 
-    handleSave = () => {  //function to check if slots is available for meeting or not
+    handleSave = () => {
+
         const { slots, start_time, end_time, } = this.state;
-        let counter = 0, counter3 = 0;
-        console.log("cjcj")
-        for (var i = 0; i < slots.length; i++) {  //iterating slots array for each slot
-            let item = slots[i];     //initializing item with the iterated slot
-            let start, end;
+        var regex = new RegExp(':', 'g');
+        var startTime = start_time;
+        var endTime = end_time;
+        var isTime = true;
 
-            if (item.split('-')[0].split(":")[0] < 10) {
-                //checking if slots's start_time is 2digit number or not  if not then adding precedding zero to it
-                start = "0" + item.split("-")[0].split(":")[0] + ":" + item.split("-")[0].split(":")[1];
-            }
-            else start = item.split("-")[0];
-            // if (item.split('-')[1].split(":")[1] < 10) {
-            //     //checking if slots's end_time is 2digit number or not  if not then adding precedding zero to it
-            //     end = "0" + item.split("-")[1].split(":")[1] + ":" + item.split("-")[1].split(":")[1];
-            // }
-            end = item.split("-")[1];
-            //  let end = item.split("-")[1];
-            // console.log("********************");
-            // console.log("start,end:", start, end);
-            // console.log("start_time,end_time:", start_time, end_time);
+        for (let i = 0; i < slots.length; i++) {
+            if (parseInt(startTime.replace(regex, ''), 10) >= parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(startTime.replace(regex, ''), 10) <= parseInt(slots[i].end_time.replace(regex, ''), 10) ||
+                parseInt(endTime.replace(regex, ''), 10) >= parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(endTime.replace(regex, ''), 10) <= parseInt(slots[i].end_time.replace(regex, ''), 10)
 
-            if ((start_time >= start && start_time <= end && end_time >= start && end_time <= end)) {
-                // checking if selecetd slot is in the iterated slot's range or not
-                counter3++;
-                console.log("iteration & count3-->", i, counter3)
-                //  return true;
+            ) {
+                isTime = false;
+                break;
             }
-            else {
-                // console.log("iteration & count3-->", i, counter3)
-                counter++;
-                console.log("iteration & count-->", i, counter)
-                //  return false;
-            }
+
 
         }
-        console.log("final counter,counter3:", counter, counter3)
-
-        if (counter3 <= 0) {
+        if (isTime) {
             this.setState({ msg: "SLOT AVAILABLE", showMsg: true, color: "success" })
         }
         else
             this.setState({ msg: "SLOT Not AVAILABLE", showMsg: true, color: "danger" })
+        console.log(isTime)
     }
 
 
