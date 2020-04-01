@@ -29,5 +29,23 @@ You will also see any lint errors in the console.
          For Displaying All meetings For the selected Date
 ####     `Meeting`
          For Adding a Meeting if Slot is Available
+         
+         
+         
+### `Libraries Used`
+
+####  `mdbreact`
+       for Bootstarp and Fontawseome Icons
+####   `react-router-dom`
+       for Navigation
+####    `history`
+        for pushing page to history array(navigation with params)
+####   `axios`
+        for API calling
+####   `react-date-picker`
+         for Date picker
+       
+
+       
 
 
