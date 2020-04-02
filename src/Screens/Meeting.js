@@ -96,6 +96,12 @@ class Meeting extends Component {
             }
             // console.log("date,today,now", todayD, nowD, dateD)
         }
+        if (name === "end_time" || name === "start_time") {
+            let time = parseInt(e.target.value.split(":").join(""))
+            console.log("Dhdddsc nsc ndc shc sh:", parseInt(e.target.value.split(":").join("")))
+            if (time < 900 || time > 2100)
+                disabled = true;
+        }
         if (e.target.value === "")
             disabled = true
         this.setState({ [e.target.name]: e.target.value, showMsg: false, showErr: false, disabled }) //setting state for input change
@@ -230,7 +236,7 @@ class Meeting extends Component {
                                 name="start_time"
                                 minTime={0}
                             /> */}
-                                <input type={startType} onFocus={this.handleFocus.bind(this, "startType")} value={start_time} name="start_time" placeholder="Start Time" className="form-control" onChange={this.handleChange} />
+                                <input type={startType} onFocus={this.handleFocus.bind(this, "startType")} min={"09:00"} value={start_time} name="start_time" placeholder="Start Time" className="form-control" onChange={this.handleChange} />
                             </div>
                             {/* <div className="col-md-1 mx-auto">
 

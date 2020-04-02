@@ -52,6 +52,7 @@ code {
 
 .header-item:first-child{
   color: black !important;
+  cursor: pointer !important;
   font-weight: 500;
   font-size: 18px;
 }
