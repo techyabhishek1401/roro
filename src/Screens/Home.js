@@ -5,7 +5,8 @@ import { MDBIcon } from 'mdbreact'
 import Axios from 'axios';
 import { Link, withRouter } from 'react-router-dom';
 import history from '../history';
-import Header from '../Components/Header'
+import Header from '../Components/Header';
+import Loader from '../Components/Loader';
 
 class Home extends Component {
     state = {
@@ -34,16 +35,16 @@ class Home extends Component {
         console.log("today:", tomorrow)
         let date = new Date(tomorrow.setDate(tomorrow.getDate() + 1 * i));
         let now = new Date();
-        console.log("fetchdate:", date, now)
+        console.log("fetchdate:", date.getDate(), now.getDate())
 
 
 
-        if (date.getTime() < now.getTime())
+        if (date.getDate() < now.getDate())
             disabled = true;
         else if (date.getTime() === now.getTime())
             disabled = false;
 
-        this.setState({ date, disabled }, (err) => {
+        this.setState({ date, disabled, loading: true }, (err) => {
             if (err) {
                 console.log("err:", err)
             }
@@ -63,29 +64,34 @@ class Home extends Component {
 
     fetchMeetings = () => {
 
-
         let now = this.state.date;
         Axios.get(`/api/schedule?date=${now.toLocaleDateString('en-GB')}`)
             .then(result => {
 
                 console.log("sss:", result.data)
-                this.setState({ meetings: result.data, })
+                this.setState({ meetings: result.data, loading: false })
             }).catch(err => {
                 throw err;
             })
     }
     componentDidMount() {
-
-        this.fetchMeetings()
+        if (localStorage.getItem('meetings') && localStorage.getItem('date')) {
+            //   const { meetings, date } = this.props.location.state;
+            let meetings = JSON.parse(localStorage.getItem('meetings'));
+            let date = new Date(localStorage.getItem('date'));
+            console.log("meetings,date:-->", meetings, date)
+            this.setState({ meetings, date, loading: false })
+        }
+        else this.fetchMeetings()
     }
     render() {
-        console.log("date inside home:", this.state.date)
+        // console.log("date inside home:", this.state.date)
         const { date, meetings, loading, disabled } = this.state;
         var options = { year: 'numeric', month: 'long', day: 'numeric' };
         return (
             <>
                 <Header items={["Home", "Meetings"]} />
-                <div className="container text-center " >
+                {loading ? <Loader show={loading} /> : <div className="container text-center " >
                     <div className="date-header  text-center text-info mb-5">
 
                         <MDBIcon icon="chevron-left" className="navigation-icon fa-2x" onClick={this.handleDateChange.bind(this, "prev")} />
@@ -101,7 +107,7 @@ class Home extends Component {
                     </div>
 
                     <button onClick={this.handleAdd} className="px-5 mt-5 py-1 btn btn-primary add-btn" disabled={disabled}>Add Meeting</button>
-                </div>
+                </div>}
             </>
 
         )

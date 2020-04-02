@@ -3,8 +3,10 @@ import { withRouter } from 'react-router-dom'
 import Axios from 'axios';
 import Card from '../Components/Card';
 import DatePicker from 'react-date-picker';
-import { MDBIcon } from 'mdbreact'
-import Header from '../Components/Header'
+import { MDBIcon } from 'mdbreact';
+import Header from '../Components/Header';
+import MeetingItem from '../Components/Meeting-Item';
+import history from '../history';
 class Meeting extends Component {
     state = {
         date: new Date().toISOString().split("T")[0],
@@ -23,7 +25,8 @@ class Meeting extends Component {
         disabledEnd: true,
         disabled: true,
         showErr: false,
-        errMsg: ""
+        errMsg: "",
+        showMeeting: false
     }
 
     fetchMeetings = () => {
@@ -47,22 +50,27 @@ class Meeting extends Component {
 
         const { description, start_time, end_time } = this.state;
         let disabled = true;
-        let disabledEnd = true;
         let name = e.target.name;
-        // if (name === "end_time") {
-        //     if (start_time === "") {
-        //         alert("Select Starting Time First")
-        //     }
-        //     else
-        //        return
-        // }
+
+
+
         if (description !== "" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
-            disabled = false
+            disabled = false;
+
+        if (name === "description" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
+            disabled = false;
+        if (name === "end_time" && description !== "") {
+            //  debugger;
+            if (Date.parse(`2011-10-09T${start_time}`) >= Date.parse(`2011-10-09T${e.target.value}`))
+                disabled = true
+        }
+        if (e.target.value === "")
+            disabled = true
         this.setState({ [e.target.name]: e.target.value, showMsg: false, showErr: false, disabled }) //setting state for input change
     }
 
     handleClear = () => {   //function to reset fields to default
-        this.setState({ start_time: "", end_time: "", description: "" })
+        this.setState({ start_time: "", end_time: "", description: "", startType: "text", endType: "text" })
     }
 
     handleFocus = (type) => {
@@ -77,45 +85,34 @@ class Meeting extends Component {
         console.log("type:", type)
     }
 
-
+    handleChange2 = (e) => {
+        debugger;
+    }
     handleSave = () => {
-        const { start_time, end_time, slots, description, date } = this.state;
+        const { start_time, end_time, slots, description, date, meetings } = this.state;
         var regex = new RegExp(':', 'g');
         var startTime = start_time;
         var endTime = end_time;
         var isTime = true;
-        // let slots = [{ st_Time: "10:00", end_time: "11:00" }
-        //     , { st_Time: "14:00", end_time: "14:30" }
-        //     , { st_Time: "9:30", end_time: "11:00" }
-        //     , { st_Time: "15:30", end_time: "16:00" }
-        // ]
+
 
         for (let i = 0; i < slots.length; i++) {
-            // let arr_start = parseInt(slots[i].st_Time.replace(regex, ''), 10);
-            // let arr_end = parseInt(slots[i].end_time.replace(regex, ''), 10);
-            // let my_start = parseInt(startTime.replace(regex, ''), 10);
-            // let my_end = parseInt(endTime.replace(regex, ''), 10);
-            let arr_start = Date.parse(`2011-10-09T${slots[i].st_Time}`);
-            let arr_end = Date.parse(`2011-10-09T${slots[i].end_time}`);
-            let my_start = Date.parse(`2011-10-09T${startTime}`)
-            let my_end = Date.parse(`2011-10-09T${endTime}`)
-            //   (start_time >= start && start_time <= end && end_time >= start && end_time <= end)
-            //   if (my_start >= arr_start && my_start <= arr_end && my_end >= arr_start && my_end <= arr_end) {
-            if (
-                //(arr_start >= my_start && arr_start <= my_end && arr_end >= my_start && arr_end <= my_end)
-                // || (my_start >= arr_start && my_start <= arr_end && my_end >= arr_start && my_end <= arr_end)
-                //||
-                ((my_start <= arr_start && my_end >= arr_start) || (my_start <= arr_end && my_end >= arr_end) || (my_start >= arr_start && my_end <= arr_end))
-                //|| ((arr_start <= my_start && arr_start >= my_end) || (arr_end <= my_start && arr_end >= my_end) || (arr_start >= my_start && arr_end <= my_end))
-            )
-            // if ((my_start <= arr_start && my_end >= arr_start) || (my_start <= arr_end && my_end >= arr_end) || (my_start >= arr_start && my_end <= arr_end)) {
+            let arr_start = parseInt(slots[i].st_Time.replace(regex, ''), 10);
+            let arr_end = parseInt(slots[i].end_time.replace(regex, ''), 10);
+            let my_start = parseInt(startTime.replace(regex, ''), 10);
+            let my_end = parseInt(endTime.replace(regex, ''), 10);
 
-            {
+            console.log('aStart:', arr_start, arr_end);
+            console.log('mStart:', my_start, my_end);
+
+            if ((my_start <= arr_end && my_start >= arr_start) || (my_end >= arr_start && my_end <= arr_end)) {
+                if (my_start === arr_end || my_end === arr_start) {
+                    continue;
+                }
                 isTime = false;
                 console.log("i:", i);
                 break;
             }
-
         }
         if (isTime) {
             this.setState({ msg: "SLOT AVAILABLE", showMsg: true, color: "success" });
@@ -123,58 +120,25 @@ class Meeting extends Component {
             const meeting = {
                 start_time,
                 end_time,
-                description
+                description,
+                participants: []
             }
             console.log("meetin previos-->", previosMeetings);
             previosMeetings.push(meeting)
             console.log("meeting new-->", previosMeetings);
+            // this.setState({ meetings: previosMeetings, showMeeting: true })
+            localStorage.setItem("meetings", JSON.stringify(previosMeetings));
+            localStorage.setItem("date", date)
+            history.push({
+                pathname: "/",
+                state: { meetings, date }
+            })
 
-            localStorage.setItem("meetings", JSON.stringify(previosMeetings))
         }
         else
             this.setState({ msg: "SLOT Not AVAILABLE", showMsg: true, color: "danger" })
 
         console.log("isTime:", isTime)
-    }
-    handleSavew = () => {
-
-        const { slots, start_time, end_time, description, date } = this.state;
-        var regex = new RegExp(':', 'g');
-        var startTime = start_time;
-        var endTime = end_time;
-        var isTime = true;
-        debugger;
-        // for (let i = 0; i < slots.length; i++) {
-        //     console.log("startTime:", parseInt(startTime.replace(regex, ''), 10));
-        //     console.log("endTime:", parseInt(endTime.replace(regex, ''), 10));
-        //     console.log("st_Time:", parseInt(slots[i].st_Time.replace(regex, ''), 10));
-        //     console.log("end_time:", parseInt(slots[i].end_time.replace(regex, ''), 10));
-        //     if (parseInt(startTime.replace(regex, ''), 10) > parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(startTime.replace(regex, ''), 10) < parseInt(slots[i].end_time.replace(regex, ''), 10) ||
-        //         parseInt(endTime.replace(regex, ''), 10) > parseInt(slots[i].st_Time.replace(regex, ''), 10) && parseInt(endTime.replace(regex, ''), 10) < parseInt(slots[i].end_time.replace(regex, ''), 10)
-
-        //     ) {
-        //         isTime = false;
-        //         break;
-        //     }
-        // }
-
-        if (isTime) {
-            this.setState({ msg: "SLOT AVAILABLE", showMsg: true, color: "success" });
-            const previosMeetings = JSON.parse(localStorage.getItem('meetings'));
-            const meeting = {
-                start_time,
-                end_time,
-                description
-            }
-            console.log("meetin previos-->", previosMeetings);
-            previosMeetings.push(meeting)
-            console.log("meeting new-->", previosMeetings);
-
-            localStorage.setItem("meetings", JSON.stringify(previosMeetings))
-        }
-        else
-            this.setState({ msg: "SLOT Not AVAILABLE", showMsg: true, color: "danger" })
-        console.log(isTime)
     }
 
 
@@ -189,7 +153,7 @@ class Meeting extends Component {
 
 
     render() {
-        const { date, disabled, disabledEnd, startType, endType, msg, showMsg, start_time, end_time, description, today, color, showErr, errMsg } = this.state;
+        const { date, disabled, meetings, showMeeting, disabledEnd, startType, endType, msg, showMsg, start_time, end_time, description, today, color, showErr, errMsg } = this.state;
         // console.log("slots:", this.state.slots);
         return (
             <div>
@@ -204,7 +168,7 @@ class Meeting extends Component {
                                 Meeting Date
                            </label>
                             <DatePicker
-                                onChange={(date) => { console.log("datefotChange:", date); this.setState({ date, showMsg: false, showErr: false }, () => this.fetchMeetings()) }
+                                onChange={(date) => { console.log("datefotChange:", date); this.setState({ date, showMsg: false, showErr: false }, () => { this.handleClear(); this.fetchMeetings() }) }
                                 }
                                 calendarIcon={<MDBIcon icon="chevron-down" />}
                                 value={date}
@@ -253,6 +217,13 @@ class Meeting extends Component {
                     <button className="btn btn-primary px-5 py-1" disabled={disabled} onClick={this.handleSave}>Save</button>
                 </div>
 
+                {showMeeting && <div>
+                    {
+                        meetings.map((meeting, index) => {
+                            return <MeetingItem meeting={meeting} uniqueKey={index} key={index} />
+                        })
+                    }
+                </div>}
 
             </div>
         )

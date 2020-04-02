@@ -83,3 +83,22 @@ code {
   border: 1px solid #ced4da;
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; 
 }
+
+.loader{
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(105, 105, 105, .9);
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+.loader h2{
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  color: white;
+  font-size: 30px;
+  font-weight: 600;
+}
