@@ -8,6 +8,20 @@ import history from '../history';
 import Header from '../Components/Header';
 import Loader from '../Components/Loader';
 
+function compare(a, b) {
+    // Use toUpperCase() to ignore character casing
+    const bandA = a.start_time.toUpperCase();
+    const bandB = b.start_time.toUpperCase();
+
+    let comparison = 0;
+    if (bandA > bandB) {
+        comparison = 1;
+    } else if (bandA < bandB) {
+        comparison = -1;
+    }
+    return comparison;
+}
+
 class Home extends Component {
     state = {
         date: new Date(),
@@ -32,11 +46,10 @@ class Home extends Component {
         let i = type === "prev" ? -1 : 1;
         let disabled = false;
         let tomorrow = this.state.date;
-        console.log("today:", tomorrow)
+        //  console.log("today:", tomorrow)
         let date = new Date(tomorrow.setDate(tomorrow.getDate() + 1 * i));
         let now = new Date();
         console.log("fetchdate:", date.getDate(), now.getDate())
-
 
 
         if (date.getDate() < now.getDate())
@@ -55,6 +68,8 @@ class Home extends Component {
 
 
     handleAdd = (e) => {
+        localStorage.setItem("date", this.state.date);
+        localStorage.setItem("meetings", JSON.stringify(this.state.meetings))
         history.push({
             pathname: "meeting",
             state: { date: this.state.date }
@@ -69,15 +84,26 @@ class Home extends Component {
             .then(result => {
 
                 console.log("sss:", result.data)
-                this.setState({ meetings: result.data, loading: false })
+                this.setState({ meetings: result.data.sort(compare), loading: false })
             }).catch(err => {
                 throw err;
             })
     }
     componentDidMount() {
+
+        // let today = new Date();
+        // let dateLocal = new Date(localStorage.getItem('date'));
+        // let meetings = localStorage.getItem('meetings');
+        // // setting meeting date to selected date from list
+        // if (dateLocal && meetings && dateLocal.toISOString().split("T")[0] === today.toISOString().split("T")[0]) {
+
+        //     console.log("meetings,date:-->", meetings, dateLocal)
+        //     this.setState({ meetings: JSON.parse(meetings), date: dateLocal, loading: false })
+        // }
+        // 8888888888888
         if (localStorage.getItem('meetings') && localStorage.getItem('date')) {
             //   const { meetings, date } = this.props.location.state;
-            let meetings = JSON.parse(localStorage.getItem('meetings'));
+            let meetings = JSON.parse(localStorage.getItem('meetings')).sort(compare);
             let date = new Date(localStorage.getItem('date'));
             console.log("meetings,date:-->", meetings, date)
             this.setState({ meetings, date, loading: false })
