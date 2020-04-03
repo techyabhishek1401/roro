@@ -84,6 +84,8 @@ class Home extends Component {
             .then(result => {
 
                 console.log("sss:", result.data)
+                localStorage.setItem('meetings', JSON.stringify(result.data));
+                localStorage.setItem('date', now);
                 this.setState({ meetings: result.data.sort(compare), loading: false })
             }).catch(err => {
                 throw err;

@@ -59,7 +59,8 @@ class Meeting extends Component {
                 result.data.map(meeting => {
                     slots.push({ st_Time: meeting.start_time, end_time: meeting.end_time });  //creating slots with meeting start and end Time
                 })
-                localStorage.setItem('meetings', JSON.stringify(result.data))
+                localStorage.setItem('meetings', JSON.stringify(result.data));
+                localStorage.setItem('date', today);
                 this.setState({ meetings: result.data, slots, loading: false })  //setting meetings array and slots
             }).catch(err => {
                 this.setState({ loading: false })
@@ -68,66 +69,11 @@ class Meeting extends Component {
     }
 
     handleChange = (e) => {
+        debugger;
         if (e.target.name === "date")
             console.log("changeDate:", e.target.value)
         this.setState({ [e.target.name]: e.target.value, showErr: false, showMsg: false }, () => this.validate())
-        // const { description, start_time, end_time, date, today } = this.state;
-        // let disabled = true;
-        // let name = e.target.name;
-        // let now = new Date();
 
-
-
-        // if (description !== "" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
-        //     disabled = false;
-
-
-        // if (name === "description" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
-        //     disabled = false;
-        // if (name === "end_time" && description !== "") {
-        //     //  debugger;
-        //     if (Date.parse(`2011-10-09T${start_time}`) >= Date.parse(`2011-10-09T${e.target.value}`))
-        //         disabled = true
-        // }
-        // if ((name === "start_time" && end_time === e.target.value) || (name === "end_time" && start_time === e.target.value)) {
-        //     disabled = true
-        // }
-        // if (name === "date") {
-        //     console.log("date------>>>>>>", e.target.value)
-        // }
-        // // if(date.getTime()<new Date().get)
-        // // console.log("date,today,now", date.getTime(), today.getTime(), now.getTime())
-        // if (true) {
-
-        //     let todayD = today;
-        //     let nowD = now;
-        //     let dateD = date;
-        //     // let my_start = parseInt(start_time.replace(regex, ''), 10);
-        //     // let my_end = parseInt(end_time.replace(regex, ''), 10);
-        //     let t = nowD.toISOString().split("T")[0]
-        //     console.log("t:", nowD);
-        //     console.log("date:", dateD);
-        //     let my_start = Date.parse(`${t}T${start_time}`);
-        //     let my_end = Date.parse(`${t}T${end_time}`);
-
-        //     if (dateD === todayD.toISOString().split("T")[0]) {
-        //         console.log("my_start,my_end,now", my_start, my_end, nowD.getTime());
-        //         if (my_start < nowD.getTime())
-        //             disabled = true;
-        //         //  else disabled = false;
-        //     }
-        //     // console.log("date,today,now", todayD, nowD, dateD)
-        // }
-        // if (name === "end_time" || name === "start_time") {
-        //     debugger;
-        //     let time = parseInt(e.target.value.split(":").join(""))
-        //     console.log("Dhdddsc nsc ndc shc sh:", parseInt(e.target.value.split(":").join("")))
-        //     if (time < 900 || time > 2100)
-        //         disabled = true;
-        // }
-        // if (e.target.value === "")
-        //     disabled = true
-        //  this.setState({ [e.target.name]: e.target.value, showMsg: false, showErr: false, disabled }) //setting state for input change
     }
 
     handleClear = () => {   //function to reset fields to default
@@ -136,7 +82,7 @@ class Meeting extends Component {
 
 
     handleDate = e => {
-        this.setState({ date: e.target.value, showMsg: false, showErr: false, loading: true }, () => { this.validate(); this.fetchMeetings() })
+        this.setState({ date: e.target.value, showMsg: false, showErr: false, loading: true, disabled: true }, () => { this.fetchMeetings() })
     }
     validate() {
         debugger;
@@ -155,12 +101,13 @@ class Meeting extends Component {
             let dateD = date;
             // let my_start = parseInt(start_time.replace(regex, ''), 10);
             // let my_end = parseInt(end_time.replace(regex, ''), 10);
-            let t = nowD.toISOString().split("T")[0]
+            let t = formatDate(nowD);
             console.log("t:", nowD);
             console.log("date:", dateD);
             let my_start = Date.parse(`${t}T${start_time}`);
             let my_end = Date.parse(`${t}T${end_time}`);
             console.log("dateDF,nowDF,todayDF:", formatDate(dateD), formatDate(todayD), formatDate(nowD))
+            console.log("dateDF,nowDF,todayDF:", dateD, todayD, nowD)
             //   if (dateD === todayD.toISOString().split("T")[0]) {
             if (formatDate(dateD) === formatDate(todayD)) {
                 console.log("my_start,my_end,now", my_start, my_end, nowD.getTime());
