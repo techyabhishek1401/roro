@@ -8,9 +8,23 @@ import Header from '../Components/Header';
 import MeetingItem from '../Components/Meeting-Item';
 import history from '../history';
 import Loader from '../Components/Loader';
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+    console.log("returned date:", [year, month, day].join('-'))
+    return [year, month, day].join('-');
+}
 class Meeting extends Component {
     state = {
-        date: new Date().toISOString().split("T")[0],
+        date: new Date(),
         today: new Date(),
         loading: true,
         description: "",
@@ -35,6 +49,7 @@ class Meeting extends Component {
 
     fetchMeetings = () => {
         let today = this.state.date;
+        this.handleClear();
         console.log("######FETCH MEETING TRIGGERED######")
         // get request to get all the meetings for the selected date
         Axios.get(`/api/schedule?date=${today}`)
@@ -53,61 +68,111 @@ class Meeting extends Component {
     }
 
     handleChange = (e) => {
+        if (e.target.name === "date")
+            console.log("changeDate:", e.target.value)
+        this.setState({ [e.target.name]: e.target.value, showErr: false, showMsg: false }, () => this.validate())
+        // const { description, start_time, end_time, date, today } = this.state;
+        // let disabled = true;
+        // let name = e.target.name;
+        // let now = new Date();
 
-        const { description, start_time, end_time, date, today } = this.state;
-        let disabled = true;
-        let name = e.target.name;
-        let now = new Date();
 
 
+        // if (description !== "" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
+        //     disabled = false;
 
-        if (description !== "" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
-            disabled = false;
 
-        if (name === "description" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
-            disabled = false;
-        if (name === "end_time" && description !== "") {
-            //  debugger;
-            if (Date.parse(`2011-10-09T${start_time}`) >= Date.parse(`2011-10-09T${e.target.value}`))
-                disabled = true
-        }
-        if ((name === "start_time" && end_time === e.target.value) || (name === "end_time" && start_time === e.target.value)) {
-            disabled = true
-        }
-        // if(date.getTime()<new Date().get)
-        // console.log("date,today,now", date.getTime(), today.getTime(), now.getTime())
-        if (true) {
+        // if (name === "description" && start_time !== "" && end_time !== "" && Date.parse(`2011-10-09T${start_time}`) < Date.parse(`2011-10-09T${end_time}`))
+        //     disabled = false;
+        // if (name === "end_time" && description !== "") {
+        //     //  debugger;
+        //     if (Date.parse(`2011-10-09T${start_time}`) >= Date.parse(`2011-10-09T${e.target.value}`))
+        //         disabled = true
+        // }
+        // if ((name === "start_time" && end_time === e.target.value) || (name === "end_time" && start_time === e.target.value)) {
+        //     disabled = true
+        // }
+        // if (name === "date") {
+        //     console.log("date------>>>>>>", e.target.value)
+        // }
+        // // if(date.getTime()<new Date().get)
+        // // console.log("date,today,now", date.getTime(), today.getTime(), now.getTime())
+        // if (true) {
 
-            let todayD = today;
-            let nowD = now;
-            let dateD = date;
-            // let my_start = parseInt(start_time.replace(regex, ''), 10);
-            // let my_end = parseInt(end_time.replace(regex, ''), 10);
-            let t = nowD.toISOString().split("T")[0]
-            let my_start = Date.parse(`${t}T${start_time}`);
-            let my_end = Date.parse(`${t}T${end_time}`);
+        //     let todayD = today;
+        //     let nowD = now;
+        //     let dateD = date;
+        //     // let my_start = parseInt(start_time.replace(regex, ''), 10);
+        //     // let my_end = parseInt(end_time.replace(regex, ''), 10);
+        //     let t = nowD.toISOString().split("T")[0]
+        //     console.log("t:", nowD);
+        //     console.log("date:", dateD);
+        //     let my_start = Date.parse(`${t}T${start_time}`);
+        //     let my_end = Date.parse(`${t}T${end_time}`);
 
-            if (dateD.toISOString().split("T")[0] === todayD.toISOString().split("T")[0]) {
-                console.log("my_start,my_end,now", my_start, my_end, nowD.getTime());
-                if (my_start < nowD.getTime())
-                    disabled = true;
-            }
-            // console.log("date,today,now", todayD, nowD, dateD)
-        }
-        if (name === "end_time" || name === "start_time") {
-            debugger;
-            let time = parseInt(e.target.value.split(":").join(""))
-            console.log("Dhdddsc nsc ndc shc sh:", parseInt(e.target.value.split(":").join("")))
-            if (time < 900 || time > 2100)
-                disabled = true;
-        }
-        if (e.target.value === "")
-            disabled = true
-        this.setState({ [e.target.name]: e.target.value, showMsg: false, showErr: false, disabled }) //setting state for input change
+        //     if (dateD === todayD.toISOString().split("T")[0]) {
+        //         console.log("my_start,my_end,now", my_start, my_end, nowD.getTime());
+        //         if (my_start < nowD.getTime())
+        //             disabled = true;
+        //         //  else disabled = false;
+        //     }
+        //     // console.log("date,today,now", todayD, nowD, dateD)
+        // }
+        // if (name === "end_time" || name === "start_time") {
+        //     debugger;
+        //     let time = parseInt(e.target.value.split(":").join(""))
+        //     console.log("Dhdddsc nsc ndc shc sh:", parseInt(e.target.value.split(":").join("")))
+        //     if (time < 900 || time > 2100)
+        //         disabled = true;
+        // }
+        // if (e.target.value === "")
+        //     disabled = true
+        //  this.setState({ [e.target.name]: e.target.value, showMsg: false, showErr: false, disabled }) //setting state for input change
     }
 
     handleClear = () => {   //function to reset fields to default
         this.setState({ start_time: "", end_time: "", description: "", startType: "text", endType: "text" })
+    }
+
+
+    handleDate = e => {
+        this.setState({ date: e.target.value, showMsg: false, showErr: false, loading: true }, () => { this.validate(); this.fetchMeetings() })
+    }
+    validate() {
+        debugger;
+        const { description, start_time, end_time, date, today } = this.state;
+        let disabled = true;
+        let intStart = parseInt(start_time.split(":").join(""));
+        let intEnd = parseInt(end_time.split(":").join(""));
+        console.log("intstart:", intStart);
+        if (description !== "" && start_time !== "" && end_time !== "" && intEnd <= 2100 && intStart >= 900 && intEnd > intStart)
+            disabled = false;
+        let q = true;
+        if (q) {
+
+            let todayD = today;
+            let nowD = new Date();
+            let dateD = date;
+            // let my_start = parseInt(start_time.replace(regex, ''), 10);
+            // let my_end = parseInt(end_time.replace(regex, ''), 10);
+            let t = nowD.toISOString().split("T")[0]
+            console.log("t:", nowD);
+            console.log("date:", dateD);
+            let my_start = Date.parse(`${t}T${start_time}`);
+            let my_end = Date.parse(`${t}T${end_time}`);
+            console.log("dateDF,nowDF,todayDF:", formatDate(dateD), formatDate(todayD), formatDate(nowD))
+            //   if (dateD === todayD.toISOString().split("T")[0]) {
+            if (formatDate(dateD) === formatDate(todayD)) {
+                console.log("my_start,my_end,now", my_start, my_end, nowD.getTime());
+                if (my_start < nowD.getTime())
+                    disabled = true;
+                //  else disabled = false;
+            }
+            // console.log("date,today,now", todayD, nowD, dateD)
+        }
+
+
+        this.setState({ disabled })
     }
 
     handleFocus = (type) => {
@@ -123,12 +188,14 @@ class Meeting extends Component {
     }
 
 
+
     handleSave = () => {
+        debugger;
         const { start_time, end_time, slots, description, date, meetings } = this.state;
-        var regex = new RegExp(':', 'g');
-        var startTime = start_time;
-        var endTime = end_time;
-        var isTime = true;
+        let regex = new RegExp(':', 'g');
+        let startTime = start_time;
+        let endTime = end_time;
+        let isTime = true;
 
 
         for (let i = 0; i < slots.length; i++) {
@@ -156,7 +223,7 @@ class Meeting extends Component {
                 start_time,
                 end_time,
                 description,
-                participants: []
+                participants: ["Abhishek Kumar"]
             }
             //   console.log("meetin previos-->", previosMeetings);
             previosMeetings.push(meeting)
@@ -192,10 +259,9 @@ class Meeting extends Component {
             })
             this.setState({ meetings: JSON.parse(meetings), slots, date: dateLocal, loading: false })
         }
-        else   //this.fetchMeetings()
-            this.setState({ date: new Date(this.props.location.state.date), loading: false }, () => {
-                this.fetchMeetings()
-            })
+        else this.setState({ date: formatDate(this.props.location.state.date), loading: false }, () => {
+            this.fetchMeetings()
+        })
 
     }
 
@@ -214,7 +280,7 @@ class Meeting extends Component {
                                 <label htmlFor="startTime">
                                     Meeting Date
                            </label>
-                                <DatePicker
+                                {/* <DatePicker
                                     onChange={(date) => { this.setState({ date, showMsg: false, showErr: false, loading: true }, () => { this.handleClear(); this.fetchMeetings() }) }
                                     }
                                     calendarIcon={<MDBIcon icon="chevron-down" />}
@@ -222,7 +288,9 @@ class Meeting extends Component {
                                     minDate={today}
                                     className="form-controls"
 
-                                />
+                                /> */}
+                                {console.log("today:", formatDate(today))}
+                                <input type="date" min={formatDate(today)} value={formatDate(date)} name="date" className="form-control" onChange={this.handleDate} />
                             </div>
 
 
